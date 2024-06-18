@@ -15,40 +15,66 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    let mut directory = Directory::new("test_dir");
+    let directory = Directory::new("test_dir")?;
 
-    directory.files = get_files("test_dir")?;
-
-    println!("{:#?}", directory.files);
+    println!("{:#?}", directory);
     Ok(())
 }
 
-fn get_files(dir: &str) -> Result<Vec<DirEntry>, io::Error> {
-    let entries: ReadDir = fs::read_dir(dir)?;
-    let mut files: Vec<DirEntry> = Vec::new();
-
-    let path = Path::new(dir);
-
-    // extract files
-    for entry in entries {
-        if let Ok(entry) = entry {
-            println!("{:?}", entry.path());
-        }
-    }
-
-    Ok(files)
-}
-
+#[derive(Debug)]
 struct Directory {
     name: String,
-    files: Vec<DirEntry>,
+    files: Vec<File>,
 }
 
 impl Directory {
-    fn new(name: &str) -> Self {
-        Directory {
+    fn new(name: &str) -> Result<Self, io::Error> {
+        let mut directory = Directory {
             name: name.to_string(),
             files: Vec::new(),
+        };
+        directory.load_files()?;
+        Ok(directory)
+    }
+
+    fn load_files(&mut self) -> Result<(), io::Error> {
+        let entries: ReadDir = fs::read_dir(&self.name)?;
+
+        for entry in entries {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_file() {
+                let extension = path
+                    .extension()
+                    .and_then(OsStr::to_str)
+                    .unwrap_or("")
+                    .to_string();
+                let name = path
+                    .file_name()
+                    .and_then(OsStr::to_str)
+                    .unwrap_or("")
+                    .to_string();
+                let file = File::new(&name, &path.to_string_lossy(), &extension);
+                self.files.push(file);
+            }
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
+struct File {
+    name: String,
+    path: String,
+    extension: String,
+}
+
+impl File {
+    fn new(name: &str, path: &str, extension: &str) -> Self {
+        File {
+            name: name.to_string(),
+            path: path.to_string(),
+            extension: extension.to_string(),
         }
     }
 }
