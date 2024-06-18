@@ -26,7 +26,18 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    let entries = fs::read_dir(path)?;
+    let entries: ReadDir = fs::read_dir("test_dir")?;
+    let mut files: Vec<DirEntry> = Vec::new();
+
+    // extract files
+    for entry in entries {
+        let entry = entry?;
+
+        if entry.path().is_file() == true {
+            println!("{:#?}", entry);
+            files.push(entry);
+        }
+    }
 
     Ok(())
 }
