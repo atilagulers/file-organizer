@@ -45,16 +45,17 @@ by Atila Guler"
     }
 
     let pb = indicatif::ProgressBar::new(100);
+
     for i in 0..100 {
         if let Err(e) = run(&target_path) {
             eprintln!("Application error: {}", e);
             process::exit(1)
         }
 
-        if i % 5 == 0 {
-            pb.println(format!("[+] finished #{}", i));
-        }
-        pb.inc(5);
+        //if i % 1 == 0 {
+        //    pb.println(format!("[+] #{}", i));
+        //}
+        pb.inc(1);
     }
     pb.finish_with_message("done");
 }
