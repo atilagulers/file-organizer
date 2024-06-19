@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::error::Error;
 use std::ffi::OsStr;
 use std::fs::{self, DirEntry, ReadDir};
@@ -15,15 +16,31 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    let directory = fs::read_dir("test_dir")?;
+    const DIRECTORY_PATH: &str = "testo";
+
+    let directory = fs::read_dir(DIRECTORY_PATH)?;
+    let mut extensions = HashMap::new();
 
     for entry in directory {
         let entry = entry?;
         let path = entry.path();
+        let file_name = entry.file_name();
 
-        let extension = path.extension().and_then(|ext| ext.to_str()).unwrap_or("");
+        let extension = path
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| "no_extension".to_string());
 
-        println!("{:#?}", extension);
+        let counter = extensions.entry(extension.clone()).or_insert(0);
+        *counter += 1;
+
+        println!("{:#?}", path);
+    }
+
+    for extension in extensions.keys() {
+        let dir_path: String = format!("{}/{}", DIRECTORY_PATH, extension);
+        fs::create_dir_all(&dir_path)?;
     }
 
     // println!("{:#?}:", directory);
