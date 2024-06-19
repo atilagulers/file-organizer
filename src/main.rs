@@ -1,11 +1,9 @@
 use std::collections::HashMap;
 use std::error::Error;
-use std::ffi::OsStr;
-use std::fs::{self, DirEntry, ReadDir};
+use std::fs::{self, ReadDir};
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process;
-use walkdir::WalkDir;
 
 fn main() {
     // get a folder
