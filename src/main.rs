@@ -58,6 +58,11 @@ fn run() -> Result<(), Box<dyn Error>> {
         })?;
     }
 
+    for file in files {
+        let ext_dir = formatted_dir.join(&file.extension);
+        let new_file_path = ext_dir.join(&file.file_name);
+        fs::copy(&file.path, &new_file_path)?;
+    }
     //println!("{:#?}", new_folder);
 
     Ok(())
