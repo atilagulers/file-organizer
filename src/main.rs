@@ -1,3 +1,5 @@
+use colored::Colorize;
+use rfd::FileDialog;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::{self, ReadDir};
@@ -6,15 +8,41 @@ use std::path::PathBuf;
 use std::process;
 
 fn main() {
-    // get a folder
+    // banner
+    println!(
+        "
+███████╗██╗██╗     ███████╗                                            
+██╔════╝██║██║     ██╔════╝                                            
+█████╗  ██║██║     █████╗                                              
+██╔══╝  ██║██║     ██╔══╝                                              
+██║     ██║███████╗███████╗                                            
+╚═╝     ╚═╝╚══════╝╚══════╝                                            
+                                                                       
+ ██████╗ ██████╗  ██████╗  █████╗ ███╗   ██╗██╗███████╗███████╗██████╗ 
+██╔═══██╗██╔══██╗██╔════╝ ██╔══██╗████╗  ██║██║╚══███╔╝██╔════╝██╔══██╗
+██║   ██║██████╔╝██║  ███╗███████║██╔██╗ ██║██║  ███╔╝ █████╗  ██████╔╝
+██║   ██║██╔══██╗██║   ██║██╔══██║██║╚██╗██║██║ ███╔╝  ██╔══╝  ██╔══██╗
+╚██████╔╝██║  ██║╚██████╔╝██║  ██║██║ ╚████║██║███████╗███████╗██║  ██║
+ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚══════╝╚══════╝╚═╝  ╚═╝
 
-    eprintln!("Please provide a folder path");
+by Atila Guler"
+    );
 
-    let target_path = io::stdin()
-        .lines()
-        .next()
-        .expect("No input found")
-        .expect("Failed to read line");
+    println!("");
+
+    println!("{}", "Please provide a folder path".cyan());
+
+    let target_path = FileDialog::new()
+        .set_directory("/")
+        .pick_folder()
+        .expect("No folder selected")
+        .display()
+        .to_string();
+
+    if target_path.is_empty() {
+        eprintln!("No folder selected. Exiting.");
+        process::exit(1);
+    }
 
     let pb = indicatif::ProgressBar::new(100);
     for i in 0..100 {
