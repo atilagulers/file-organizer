@@ -9,15 +9,24 @@ fn main() {
     // get a folder
 
     if let Err(e) = run() {
-        println!("Application error: {}", e);
+        eprintln!("Application error: {}", e);
         process::exit(1)
     }
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    let directory = Directory::new("test_dir")?;
+    let directory = fs::read_dir("test_dir")?;
 
-    println!("{:#?}", directory);
+    for entry in directory {
+        let entry = entry?;
+        let path = entry.path();
+
+        let extension = path.extension().and_then(|ext| ext.to_str()).unwrap_or("");
+
+        println!("{:#?}", extension);
+    }
+
+    // println!("{:#?}:", directory);
     Ok(())
 }
 
@@ -33,7 +42,7 @@ impl Directory {
             name: name.to_string(),
             files: Vec::new(),
         };
-        directory.load_files()?;
+        // directory.load_files()?;
         Ok(directory)
     }
 
